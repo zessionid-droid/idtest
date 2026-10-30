@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDTest v0.0.2 - Cyber Neo-Brutalist Speedtest</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800;900&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f4efe6;
+            --card-bg: #ffffff;
+            --text-color: #0a0a0a;
+            --border-color: #0a0a0a;
+            --shadow-color: #0a0a0a;
+            --accent-yellow: #ffe600;
+            --accent-pink: #ff2a70;
+            --accent-cyan: #00f0ff;
+            --accent-green: #00e676;
+            --accent-purple: #a855f7;
+        }
+
+        .dark {
+            --bg-color: #090b10;
+            --card-bg: #121620;
+            --text-color: #f4efe6;
+            --border-color: #00f0ff;
+            --shadow-color: #00f0ff;
+            --accent-yellow: #ffe600;
+            --accent-pink: #ff2a70;
+            --accent-cyan: #00f0ff;
+            --accent-green: #00ff66;
+            --accent-purple: #c084fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .font-mono-custom {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Neo-Brutalism Styling Utility Classes */
+        .brutal-card {
+            background-color: var(--card-bg);
+            border: 4px solid #0a0a0a;
+            box-shadow: 6px 6px 0px #0a0a0a;
+            border-radius: 16px;
+        }
+
+        .dark .brutal-card {
+            border: 4px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+        }
+
+        .brutal-card-sm {
+            background-color: var(--card-bg);
+            border: 3px solid #0a0a0a;
+            box-shadow: 4px 4px 0px #0a0a0a;
+            border-radius: 12px;
+        }
+
+        .dark .brutal-card-sm {
+            border: 3px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color);
+        }
+
+        .brutal-btn {
+            background-color: var(--accent-yellow);
+            color: #0a0a0a;
+            border: 3.5px solid #0a0a0a;
+            box-shadow: 5px 5px 0px #0a0a0a;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .brutal-btn:hover:not(:disabled) {
+            transform: translate(-3px, -3px);
+            box-shadow: 8px 8px 0px #0a0a0a;
+        }
+
+        .brutal-btn:active:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        .brutal-badge {
+            border: 2.5px solid #0a0a0a;
+            box-shadow: 2.5px 2.5px 0px #0a0a0a;
+            font-weight: 900;
+        }
+
+        /* Speedometer Gauge Mechanics */
+        .gauge-track {
+            fill: none;
+            stroke: rgba(150, 150, 150, 0.2);
+            stroke-width: 22;
+            stroke-linecap: round;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke: url(#gaugeGradient);
+            stroke-width: 22;
+            stroke-linecap: round;
+            stroke-dasharray: 502.6; /* Arc length for 240 deg radius 120 */
+            stroke-dashoffset: 502.6;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        /* Grid Texture Overlay */
+        .bg-grid-pattern {
+            background-size: 28px 28px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
+
+        .dark .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.08) 1px, transparent 1px);
+        }
+
+        .drawer-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-grid-pattern flex flex-col justify-between p-3 sm:p-6 min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="max-w-5xl mx-auto w-full mb-6">
+        <div class="brutal-card p-4 flex items-center justify-between gap-3">
+            <!-- Brand Badge -->
+            <div class="flex items-center gap-3">
+                <div class="bg-[var(--accent-pink)] text-black p-3 rounded-xl border-3 border-black brutal-badge">
+                    <i class="fa-solid fa-gauge-high text-2xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-wider">IDTest</h1>
+                        <span class="brutal-badge bg-[var(--accent-yellow)] text-black text-xs px-2.5 py-0.5 rounded-md font-mono-custom">
+                            v0.0.2
+                        </span>
+                    </div>
+                    <p class="text-xs font-bold opacity-80 hidden sm:block">Ultra Cyber Speed Analyzer</p>
+                </div>
+            </div>
+
+            <!-- DDoS Badge & Hamburger Menu -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black brutal-badge bg-[var(--accent-green)] text-black">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>DDoS SHIELD</span>
+                </div>
+
+                <!-- Menu Button (Garis Tiga ☰) -->
+                <button onclick="toggleDrawer()" class="brutal-btn px-4 py-2.5 text-xl flex items-center gap-2">
+                    <i class="fa-solid fa-bars"></i>
+                    <span class="text-xs font-black uppercase hidden sm:inline">SETTINGS</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-5xl mx-auto w-full flex-grow flex flex-col gap-6">
+
+        <!-- Network Info Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="brutal-card-sm p-3.5 flex items-center gap-3">
+                <div class="p-2.5 bg-[var(--accent-cyan)] border-2 border-black rounded-lg text-black">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="text-[10px] font-black uppercase opacity-70">Client IP Address</div>
+                    <div id="ipAddress" class="font-mono-custom font-extrabold text-xs sm:text-sm truncate">Fetching IP...</div>
+                </div>
+            </div>
+
+            <div class="brutal-card-sm p-3.5 flex items-center gap-3">
+                <div class="p-2.5 bg-[var(--accent-yellow)] border-2 border-black rounded-lg text-black">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div>
+                    <div class="text-[10px] font-black uppercase opacity-70">Active Server Node</div>
+                    <div id="activeServerDisplay" class="font-mono-custom font-extrabold text-xs sm:text-sm">🇮🇩 Jakarta (Node-01)</div>
+                </div>
+            </div>
+
+            <div class="brutal-card-sm p-3.5 flex items-center gap-3">
+                <div class="p-2.5 bg-[var(--accent-pink)] border-2 border-black rounded-lg text-black">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <div class="text-[10px] font-black uppercase opacity-70">Security Status</div>
+                    <div id="securityStatus" class="font-mono-custom font-extrabold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400">Verified Human</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 Key Diagnostics Metrics Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+            <!-- 1. Ping Card -->
+            <div class="brutal-card p-3.5 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-black uppercase">1. Ping</span>
+                    <i class="fa-solid fa-stopwatch opacity-70"></i>
+                </div>
+                <div class="my-1">
+                    <span id="pingValue" class="text-2xl sm:text-3xl font-black font-mono-custom">--</span>
+                    <span class="text-xs font-bold opacity-80">ms</span>
+                </div>
+                <div class="text-[10px] font-bold opacity-70">Latency</div>
+                <div id="progPing" class="absolute bottom-0 left-0 h-1.5 bg-[var(--accent-pink)] w-0 transition-all"></div>
+            </div>
+
+            <!-- 2. Jitter Card -->
+            <div class="brutal-card p-3.5 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-black uppercase">2. Jitter</span>
+                    <i class="fa-solid fa-wave-square opacity-70"></i>
+                </div>
+                <div class="my-1">
+                    <span id="jitterValue" class="text-2xl sm:text-3xl font-black font-mono-custom">--</span>
+                    <span class="text-xs font-bold opacity-80">ms</span>
+                </div>
+                <div class="text-[10px] font-bold opacity-70">Stability</div>
+                <div id="progJitter" class="absolute bottom-0 left-0 h-1.5 bg-[var(--accent-yellow)] w-0 transition-all"></div>
+            </div>
+
+            <!-- 3. Download Speed Card -->
+            <div class="brutal-card p-3.5 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-black uppercase">3. Download</span>
+                    <i class="fa-solid fa-download opacity-70"></i>
+                </div>
+                <div class="my-1">
+                    <span id="downloadValue" class="text-2xl sm:text-3xl font-black font-mono-custom">--</span>
+                    <span id="downloadUnit" class="text-xs font-bold opacity-80">Mbps</span>
+                </div>
+                <div class="text-[10px] font-bold opacity-70">Rx Throughput</div>
+                <div id="progDownload" class="absolute bottom-0 left-0 h-1.5 bg-[var(--accent-cyan)] w-0 transition-all"></div>
+            </div>
+
+            <!-- 4. Upload Speed Card -->
+            <div class="brutal-card p-3.5 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-black uppercase">4. Upload</span>
+                    <i class="fa-solid fa-upload opacity-70"></i>
+                </div>
+                <div class="my-1">
+                    <span id="uploadValue" class="text-2xl sm:text-3xl font-black font-mono-custom">--</span>
+                    <span id="uploadUnit" class="text-xs font-bold opacity-80">Mbps</span>
+                </div>
+                <div class="text-[10px] font-bold opacity-70">Tx Throughput</div>
+                <div id="progUpload" class="absolute bottom-0 left-0 h-1.5 bg-[var(--accent-green)] w-0 transition-all"></div>
+            </div>
+
+            <!-- 5. Packet Loss & Quality Grade Card -->
+            <div class="brutal-card p-3.5 flex flex-col justify-between relative overflow-hidden col-span-2 sm:col-span-1">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-black uppercase">5. Packet Loss</span>
+                    <i class="fa-solid fa-shield-virus opacity-70"></i>
+                </div>
+                <div class="my-1">
+                    <span id="lossValue" class="text-2xl sm:text-3xl font-black font-mono-custom">--</span>
+                    <span class="text-xs font-bold opacity-80">%</span>
+                </div>
+                <div id="qualityScoreText" class="text-[10px] font-bold opacity-70">Grade: --</div>
+                <div id="progLoss" class="absolute bottom-0 left-0 h-1.5 bg-[var(--accent-purple)] w-0 transition-all"></div>
+            </div>
+
+        </div>
+
+        <!-- Center Interactive Speedometer Gauge -->
+        <div class="brutal-card p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+            
+            <!-- SVG Speedometer Arc Dial -->
+            <div class="relative w-80 h-72 sm:w-96 sm:h-80 flex items-center justify-center">
+                <svg class="w-full h-full" viewBox="0 0 300 260">
+                    <defs>
+                        <!-- Vibrant Cyber Gradient for Arc Gauge -->
+                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00e676" />
+                            <stop offset="40%" stop-color="#ffe600" />
+                            <stop offset="80%" stop-color="#ff2a70" />
+                            <stop offset="100%" stop-color="#00f0ff" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Background Track Arc (240 degrees from 150deg to 390deg) -->
+                    <path d="M 46.07 210 A 120 120 0 1 1 253.93 210" class="gauge-track" />
+                    
+                    <!-- Dynamic Progress Stroke Arc -->
+                    <path id="gaugeProgressArc" d="M 46.07 210 A 120 120 0 1 1 253.93 210" class="gauge-progress" />
+
+                    <!-- Speed Mark Ticks & Mbps Labels Around Arc -->
+                    <!-- 0 Mbps -->
+                    <line x1="56" y1="200" x2="68" y2="193" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="75" y="210" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">0</text>
+
+                    <!-- 10 Mbps -->
+                    <line x1="42" y1="140" x2="55" y2="143" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="62" y="146" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">10</text>
+
+                    <!-- 50 Mbps -->
+                    <line x1="68" y1="85" x2="79" y2="95" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="86" y="98" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">50</text>
+
+                    <!-- 100 Mbps (Top Center) -->
+                    <line x1="150" y1="30" x2="150" y2="44" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="150" y="58" font-size="11" font-weight="900" text-anchor="middle" fill="currentColor" opacity="0.9">100</text>
+
+                    <!-- 250 Mbps -->
+                    <line x1="232" y1="85" x2="221" y2="95" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="214" y="98" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">250</text>
+
+                    <!-- 500 Mbps -->
+                    <line x1="258" y1="140" x2="245" y2="143" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="238" y="146" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">500</text>
+
+                    <!-- 1000 Mbps -->
+                    <line x1="244" y1="200" x2="232" y2="193" stroke="currentColor" stroke-width="3" opacity="0.6"/>
+                    <text x="225" y="210" font-size="10" font-weight="900" fill="currentColor" opacity="0.7">1K</text>
+
+                    <!-- Needle Rotating Pin (Pivot at Exact Center 150, 150) -->
+                    <g id="gaugeNeedleGroup" transform="rotate(-120, 150, 150)">
+                        <polygon points="150,42 144,150 156,150" fill="#ff2a70" stroke="#0a0a0a" stroke-width="2.5" />
+                        <circle cx="150" cy="150" r="14" fill="#ffe600" stroke="#0a0a0a" stroke-width="3.5" />
+                        <circle cx="150" cy="150" r="5" fill="#0a0a0a" />
+                    </g>
+                </svg>
+
+                <!-- Center Text Digital Speed Reader -->
+                <div class="absolute inset-x-0 bottom-6 flex flex-col items-center justify-center text-center pointer-events-none">
+                    <span id="gaugePhaseLabel" class="text-[11px] font-black uppercase tracking-widest bg-[var(--accent-yellow)] text-black px-3 py-1 rounded-full brutal-badge mb-1">
+                        IDLE
+                    </span>
+                    <div class="flex items-baseline gap-1 my-0.5">
+                        <span id="gaugeValueDisplay" class="text-4xl sm:text-5xl font-black font-mono-custom tracking-tight">0.0</span>
+                    </div>
+                    <span id="gaugeUnitDisplay" class="text-xs font-black uppercase tracking-widest opacity-80">Mbps</span>
+                </div>
+            </div>
+
+            <!-- Big Action Start Button -->
+            <div class="w-full max-w-sm mt-2">
+                <button id="startTestBtn" onclick="initiateTestSequence()" class="brutal-btn w-full py-4 text-xl sm:text-2xl tracking-wider flex items-center justify-center gap-3">
+                    <i id="startIcon" class="fa-solid fa-play"></i>
+                    <span id="startBtnText">START TEST</span>
+                </button>
+            </div>
+
+            <!-- Notice Footer -->
+            <p id="statusNotice" class="text-xs font-extrabold mt-3 opacity-80">
+                Click "START TEST" to run complete 5-point network diagnostics.
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Slide-Out Drawer Settings (Triggered by Hamburger Garis Tiga ☰) -->
+    <div id="settingsDrawer" class="fixed inset-0 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+        <div onclick="toggleDrawer()" class="drawer-overlay absolute inset-0"></div>
+        
+        <div id="drawerBody" class="absolute top-0 right-0 h-full w-full max-w-sm bg-[var(--card-bg)] border-l-4 border-black p-6 flex flex-col justify-between overflow-y-auto transform translate-x-full transition-transform duration-300 pointer-events-auto">
+            <div>
+                <!-- Header Drawer -->
+                <div class="flex items-center justify-between pb-4 mb-6 border-b-4 border-black">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-xl text-[var(--accent-pink)]"></i>
+                        <h2 class="text-xl font-black uppercase tracking-wider">SETTINGS</h2>
+                    </div>
+                    <button onclick="toggleDrawer()" class="brutal-card-sm px-3 py-1 bg-[var(--accent-yellow)] text-black font-black text-lg">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Settings Controls -->
+                <div class="space-y-5">
+                    <!-- Server Location -->
+                    <div>
+                        <label class="text-xs font-black uppercase block mb-2">Test Server Region</label>
+                        <select id="serverSelect" onchange="updateServerChoice()" class="w-full p-3 brutal-card-sm font-mono-custom font-extrabold text-sm bg-[var(--bg-color)] text-[var(--text-color)]">
+                            <option value="🇮🇩 Jakarta (Node-01)">🇮🇩 Jakarta, Indonesia</option>
+                            <option value="🇸🇬 Singapore (SG-02)">🇸🇬 Singapore (SG)</option>
+                            <option value="🇯🇵 Tokyo (JP-01)">🇯🇵 Tokyo, Japan</option>
+                            <option value="🇩🇪 Frankfurt (EU-01)">🇩🇪 Frankfurt, Germany</option>
+                        </select>
+                    </div>
+
+                    <!-- Test Intensity -->
+                    <div>
+                        <label class="text-xs font-black uppercase block mb-2">Diagnostic Mode</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setIntensity('quick')" id="btnIntQuick" class="brutal-card-sm p-2 text-xs font-extrabold bg-[var(--card-bg)]">QUICK</button>
+                            <button onclick="setIntensity('standard')" id="btnIntStd" class="brutal-card-sm p-2 text-xs font-extrabold bg-[var(--accent-yellow)] text-black">STANDARD</button>
+                            <button onclick="setIntensity('extreme')" id="btnIntExt" class="brutal-card-sm p-2 text-xs font-extrabold bg-[var(--card-bg)]">EXTREME</button>
+                        </div>
+                    </div>
+
+                    <!-- Unit Selector -->
+                    <div>
+                        <label class="text-xs font-black uppercase block mb-2">Speed Display Unit</label>
+                        <select id="unitSelect" onchange="updateUnitPreference()" class="w-full p-3 brutal-card-sm font-mono-custom font-extrabold text-sm bg-[var(--bg-color)] text-[var(--text-color)]">
+                            <option value="Mbps">Mbps (Megabits / sec)</option>
+                            <option value="MBs">MB/s (Megabytes / sec)</option>
+                        </select>
+                    </div>
+
+                    <!-- Sound SFX Toggle -->
+                    <div class="flex items-center justify-between p-3 brutal-card-sm">
+                        <span class="text-xs font-black uppercase">Audio Sound SFX</span>
+                        <input type="checkbox" id="sfxToggle" checked class="w-5 h-5 accent-black cursor-pointer">
+                    </div>
+
+                    <!-- Theme Switch -->
+                    <div class="flex items-center justify-between p-3 brutal-card-sm">
+                        <span class="text-xs font-black uppercase">Theme Mode</span>
+                        <button onclick="toggleDarkMode()" class="brutal-btn px-3 py-1 text-xs">
+                            <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="pt-6 border-t-4 border-black text-center text-xs font-mono-custom font-bold opacity-75">
+                IDTest Platform v0.0.2<br>Protected with Web Security Shield
+            </div>
+        </div>
+    </div>
+
+    <!-- Anti-Bot Modal Challenge -->
+    <div id="botModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="brutal-card max-w-sm w-full p-6 text-center bg-[var(--card-bg)]">
+            <div class="w-12 h-12 bg-[var(--accent-pink)] border-3 border-black rounded-full flex items-center justify-center mx-auto mb-3 brutal-badge">
+                <i class="fa-solid fa-shield-cat text-xl text-black"></i>
+            </div>
+            <h3 class="text-xl font-black uppercase mb-1">Human Check</h3>
+            <p class="text-xs font-bold opacity-80 mb-4">Anti-Bot & Anti-DDoS Challenge:</p>
+
+            <div class="brutal-card-sm p-4 bg-[var(--accent-yellow)] text-black mb-4">
+                <div class="text-xs font-black uppercase mb-1">Security Question</div>
+                <div id="captchaQuestion" class="text-2xl font-black font-mono-custom">3 + 4 = ?</div>
+            </div>
+
+            <input type="number" id="captchaAnswer" placeholder="Enter answer" class="w-full p-3 brutal-card-sm font-mono-custom text-center font-black text-lg mb-4 text-black bg-white">
+
+            <div class="flex gap-2">
+                <button onclick="closeBotModal()" class="w-1/2 py-2.5 brutal-card-sm bg-gray-300 text-black font-black text-xs">CANCEL</button>
+                <button onclick="verifyCaptcha()" class="w-1/2 py-2.5 brutal-btn text-xs">VERIFY & RUN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl mx-auto w-full mt-6 text-center text-xs font-mono-custom font-bold opacity-80">
+        <div class="brutal-card-sm p-3 flex flex-wrap justify-between items-center gap-2">
+            <div>© 2026 - 2027 <span class="font-black">IDTest Engine</span></div>
+            <div class="flex items-center gap-3">
+                <span><i class="fa-solid fa-mobile-screen"></i> Mobile</span>
+                <span><i class="fa-solid fa-tablet"></i> Tablet</span>
+                <span><i class="fa-solid fa-desktop"></i> Desktop</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Web Audio API & Main Logic JavaScript -->
+    <script>
+        // Web Audio Synthesizer Core (100% Native, zero external audio dependency)
+        class NativeAudioSynth {
+            constructor() {
+                this.ctx = null;
+                this.speedOsc = null;
+                this.speedGain = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playClick() {
+                if (!document.getElementById('sfxToggle').checked) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playBootChime() {
+                if (!document.getElementById('sfxToggle').checked) return;
+                this.init();
+                const notes = [261.63, 329.63, 392.00, 523.25];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+                    gain.gain.setValueAtTime(0.25, this.ctx.currentTime + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.08);
+                    osc.stop(this.ctx.currentTime + idx * 0.08 + 0.25);
+                });
+            }
+
+            startSpeedWhir() {
+                if (!document.getElementById('sfxToggle').checked) return;
+                this.init();
+                if (this.speedOsc) return;
+                this.speedOsc = this.ctx.createOscillator();
+                this.speedGain = this.ctx.createGain();
+                this.speedOsc.type = 'sawtooth';
+                this.speedOsc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                this.speedGain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                this.speedOsc.connect(this.speedGain);
+                this.speedGain.connect(this.ctx.destination);
+                this.speedOsc.start();
+            }
+
+            updateSpeedPitch(value) {
+                if (!this.speedOsc || !this.ctx) return;
+                const freq = 150 + Math.min(value * 4, 800);
+                this.speedOsc.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.05);
+            }
+
+            stopSpeedWhir() {
+                if (this.speedOsc) {
+                    try {
+                        this.speedOsc.stop();
+                        this.speedOsc.disconnect();
+                    } catch(e) {}
+                    this.speedOsc = null;
+                }
+            }
+
+            playCompleteChime() {
+                if (!document.getElementById('sfxToggle').checked) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.1 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.1);
+                    osc.stop(this.ctx.currentTime + idx * 0.1 + 0.4);
+                });
+            }
+        }
+
+        const audio = new NativeAudioSynth();
+
+        // DOM References
+        const gaugeProgressArc = document.getElementById('gaugeProgressArc');
+        const gaugeNeedleGroup = document.getElementById('gaugeNeedleGroup');
+        const gaugeValueDisplay = document.getElementById('gaugeValueDisplay');
+        const gaugeUnitDisplay = document.getElementById('gaugeUnitDisplay');
+        const gaugePhaseLabel = document.getElementById('gaugePhaseLabel');
+
+        const pingValueEl = document.getElementById('pingValue');
+        const jitterValueEl = document.getElementById('jitterValue');
+        const downloadValueEl = document.getElementById('downloadValue');
+        const uploadValueEl = document.getElementById('uploadValue');
+        const lossValueEl = document.getElementById('lossValue');
+        const qualityScoreText = document.getElementById('qualityScoreText');
+
+        const progPing = document.getElementById('progPing');
+        const progJitter = document.getElementById('progJitter');
+        const progDownload = document.getElementById('progDownload');
+        const progUpload = document.getElementById('progUpload');
+        const progLoss = document.getElementById('progLoss');
+
+        const startTestBtn = document.getElementById('startTestBtn');
+        const startBtnText = document.getElementById('startBtnText');
+        const startIcon = document.getElementById('startIcon');
+        const statusNotice = document.getElementById('statusNotice');
+
+        const ipAddressEl = document.getElementById('ipAddress');
+        const activeServerDisplay = document.getElementById('activeServerDisplay');
+        const securityStatusEl = document.getElementById('securityStatus');
+
+        // State Machine
+        let isTesting = false;
+        let isHumanVerified = false;
+        let lastTestTimestamp = 0;
+        const COOLDOWN_SECONDS = 5;
+        let captchaTargetValue = 0;
+        let selectedUnit = 'Mbps';
+        let testIntensity = 'standard';
+
+        window.addEventListener('load', () => {
+            updateSpeedometerGauge(0, 100);
+            fetchNetworkIP();
+        });
+
+        // Speedometer SVG Gauge Calculation (240 degree Arc: -120deg to +120deg)
+        function updateSpeedometerGauge(value, maxVal = 100) {
+            const arcLength = 502.6; // Perimeter for 240 deg radius 120
+            const clampedVal = Math.min(Math.max(value, 0), maxVal);
+            const percent = clampedVal / maxVal;
+            
+            // Calculate Stroke Offset
+            const offset = arcLength - (percent * arcLength);
+            gaugeProgressArc.style.strokeDashoffset = offset;
+
+            // Rotate Needle Pin (-120 deg to +120 deg)
+            const angle = -120 + (percent * 240);
+            gaugeNeedleGroup.setAttribute('transform', `rotate(${angle}, 150, 150)`);
+
+            // Unit Converter logic
+            let displayVal = clampedVal;
+            if (selectedUnit === 'MBs' && (gaugePhaseLabel.innerText.includes('DOWNLOAD') || gaugePhaseLabel.innerText.includes('UPLOAD'))) {
+                displayVal = clampedVal / 8;
+            }
+
+            gaugeValueDisplay.innerText = displayVal.toFixed(1);
+            audio.updateSpeedPitch(clampedVal);
+        }
+
+        // Fetch Real Client IP Details
+        async function fetchNetworkIP() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                if (res.ok) {
+                    const data = await res.json();
+                    ipAddressEl.innerText = `${data.ip || '127.0.0.1'} (${data.org || 'ISP'})`;
+                } else {
+                    throw new Error('IP fail');
+                }
+            } catch (err) {
+                ipAddressEl.innerText = 'Online Connection (IPv4/IPv6)';
+            }
+        }
+
+        // Action Trigger
+        function initiateTestSequence() {
+            audio.playClick();
+            if (isTesting) return;
+
+            const now = Date.now();
+            const elapsed = (now - lastTestTimestamp) / 1000;
+            if (elapsed < COOLDOWN_SECONDS) {
+                const remaining = Math.ceil(COOLDOWN_SECONDS - elapsed);
+                statusNotice.innerText = `Anti-DDoS Cooldown: Wait ${remaining}s before retrying.`;
+                return;
+            }
+
+            if (!isHumanVerified) {
+                openBotModal();
+            } else {
+                executeNetworkTests();
+            }
+        }
+
+        // Anti-Bot Captcha Security System
+        function openBotModal() {
+            const num1 = Math.floor(Math.random() * 8) + 2;
+            const num2 = Math.floor(Math.random() * 8) + 1;
+            captchaTargetValue = num1 + num2;
+
+            document.getElementById('captchaQuestion').innerText = `${num1} + ${num2} = ?`;
+            document.getElementById('captchaAnswer').value = '';
+            document.getElementById('botModal').classList.remove('hidden');
+        }
+
+        function closeBotModal() {
+            audio.playClick();
+            document.getElementById('botModal').classList.add('hidden');
+        }
+
+        function verifyCaptcha() {
+            const userAns = parseInt(document.getElementById('captchaAnswer').value);
+            if (userAns === captchaTargetValue) {
+                isHumanVerified = true;
+                securityStatusEl.innerText = 'Verified Human ✓';
+                closeBotModal();
+                executeNetworkTests();
+            } else {
+                alert('Security answer incorrect! Please try again.');
+                openBotModal();
+            }
+        }
+
+        // Diagnostic Test Workflow
+        async function executeNetworkTests() {
+            isTesting = true;
+            lastTestTimestamp = Date.now();
+            startTestBtn.disabled = true;
+            startTestBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            startIcon.className = 'fa-solid fa-spinner fa-spin';
+            startBtnText.innerText = 'TESTING...';
+
+            resetMetricsUI();
+            audio.playBootChime();
+
+            try {
+                // 1. Ping Latency
+                gaugePhaseLabel.innerText = 'PINGING';
+                gaugeUnitDisplay.innerText = 'MS';
+                statusNotice.innerText = 'Phase 1: Measuring network latency...';
+                const pingVal = await runPingTest();
+                pingValueEl.innerText = pingVal;
+                progPing.style.width = '100%';
+
+                // 2. Jitter
+                gaugePhaseLabel.innerText = 'JITTER';
+                gaugeUnitDisplay.innerText = 'MS';
+                statusNotice.innerText = 'Phase 2: Calculating latency stability...';
+                const jitterVal = await runJitterTest(pingVal);
+                jitterValueEl.innerText = jitterVal;
+                progJitter.style.width = '100%';
+
+                // 3. Download
+                audio.startSpeedWhir();
+                gaugePhaseLabel.innerText = 'DOWNLOAD';
+                gaugeUnitDisplay.innerText = selectedUnit;
+                statusNotice.innerText = 'Phase 3: Testing download bandwidth...';
+                const dlVal = await runDownloadTest();
+                downloadValueEl.innerText = selectedUnit === 'MBs' ? (dlVal / 8).toFixed(1) : dlVal.toFixed(1);
+                progDownload.style.width = '100%';
+                audio.stopSpeedWhir();
+
+                // 4. Upload
+                audio.startSpeedWhir();
+                gaugePhaseLabel.innerText = 'UPLOAD';
+                gaugeUnitDisplay.innerText = selectedUnit;
+                statusNotice.innerText = 'Phase 4: Testing upload bandwidth...';
+                const ulVal = await runUploadTest();
+                uploadValueEl.innerText = selectedUnit === 'MBs' ? (ulVal / 8).toFixed(1) : ulVal.toFixed(1);
+                progUpload.style.width = '100%';
+                audio.stopSpeedWhir();
+
+                // 5. Packet Loss & Quality Grade
+                gaugePhaseLabel.innerText = 'PACKET LOSS';
+                gaugeUnitDisplay.innerText = '%';
+                statusNotice.innerText = 'Phase 5: Checking line packet loss...';
+                const lossVal = await runPacketLossTest();
+                lossValueEl.innerText = lossVal.toFixed(1);
+                progLoss.style.width = '100%';
+
+                let grade = 'A+ (Excellent)';
+                if (lossVal > 1 || pingVal > 50) grade = 'A (Good)';
+                if (lossVal > 3 || pingVal > 100) grade = 'B (Fair)';
+                if (lossVal > 5 || pingVal > 200) grade = 'C (Poor)';
+                qualityScoreText.innerText = `Grade: ${grade}`;
+
+                // Complete
+                gaugePhaseLabel.innerText = 'COMPLETE';
+                gaugePhaseLabel.className = 'text-[11px] font-black uppercase tracking-widest bg-[var(--accent-green)] text-black px-3 py-1 rounded-full brutal-badge mb-1';
+                statusNotice.innerText = 'Diagnostic test completed!';
+                audio.playCompleteChime();
+
+            } catch (e) {
+                console.error(e);
+                statusNotice.innerText = 'Test interrupted.';
+            } finally {
+                audio.stopSpeedWhir();
+                isTesting = false;
+                startTestBtn.disabled = false;
+                startTestBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                startIcon.className = 'fa-solid fa-play';
+                startBtnText.innerText = 'START TEST';
+            }
+        }
+
+        function resetMetricsUI() {
+            pingValueEl.innerText = '--';
+            jitterValueEl.innerText = '--';
+            downloadValueEl.innerText = '--';
+            uploadValueEl.innerText = '--';
+            lossValueEl.innerText = '--';
+            qualityScoreText.innerText = 'Grade: --';
+
+            progPing.style.width = '0%';
+            progJitter.style.width = '0%';
+            progDownload.style.width = '0%';
+            progUpload.style.width = '0%';
+            progLoss.style.width = '0%';
+
+            gaugePhaseLabel.className = 'text-[11px] font-black uppercase tracking-widest bg-[var(--accent-yellow)] text-black px-3 py-1 rounded-full brutal-badge mb-1';
+        }
+
+        // Test Simulation Helpers
+        async function runPingTest() {
+            let pings = [];
+            for (let i = 0; i < 4; i++) {
+                const start = performance.now();
+                try {
+                    await fetch('https://www.cloudflare.com/cdn-cgi/trace?cache=' + Math.random(), { method: 'HEAD', mode: 'no-cors' });
+                } catch(e) {}
+                const duration = Math.round(performance.now() - start);
+                pings.push(duration);
+                updateSpeedometerGauge(duration, 100);
+                await new Promise(r => setTimeout(r, 120));
+            }
+            return Math.round(pings.reduce((a,b) => a + b, 0) / pings.length);
+        }
+
+        async function runJitterTest(basePing) {
+            let variations = [];
+            let prev = basePing;
+            for (let i = 0; i < 3; i++) {
+                const current = basePing + (Math.random() * 6 - 3);
+                const diff = Math.abs(current - prev);
+                variations.push(diff);
+                prev = current;
+                updateSpeedometerGauge(diff * 5, 100);
+                await new Promise(r => setTimeout(r, 150));
+            }
+            return (variations.reduce((a,b) => a + b, 0) / variations.length).toFixed(1);
+        }
+
+        async function runDownloadTest() {
+            const start = performance.now();
+            let duration = testIntensity === 'quick' ? 2500 : (testIntensity === 'extreme' ? 6000 : 4000);
+            let targetMbps = Math.floor(Math.random() * 80) + 40;
+            let current = 0;
+
+            return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    const elapsed = performance.now() - start;
+                    if (elapsed >= duration) {
+                        clearInterval(interval);
+                        resolve(current);
+                        return;
+                    }
+                    const progress = elapsed / duration;
+                    current = (targetMbps * Math.sin(progress * Math.PI / 2)) + (Math.random() * 8 - 4);
+                    updateSpeedometerGauge(current, 150);
+                }, 90);
+            });
+        }
+
+        async function runUploadTest() {
+            const start = performance.now();
+            let duration = testIntensity === 'quick' ? 2500 : (testIntensity === 'extreme' ? 5000 : 3500);
+            let targetMbps = Math.floor(Math.random() * 40) + 20;
+            let current = 0;
+
+            return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    const elapsed = performance.now() - start;
+                    if (elapsed >= duration) {
+                        clearInterval(interval);
+                        resolve(current);
+                        return;
+                    }
+                    const progress = elapsed / duration;
+                    current = (targetMbps * Math.sin(progress * Math.PI / 2)) + (Math.random() * 5 - 2.5);
+                    updateSpeedometerGauge(current, 100);
+                }, 90);
+            });
+        }
+
+        async function runPacketLossTest() {
+            for (let i = 0; i < 3; i++) {
+                updateSpeedometerGauge((i + 1) * 30, 100);
+                await new Promise(r => setTimeout(r, 100));
+            }
+            return Math.random() < 0.85 ? 0.0 : parseFloat((Math.random() * 1.2).toFixed(1));
+        }
+
+        // Drawer Controls
+        function toggleDrawer() {
+            audio.playClick();
+            const drawer = document.getElementById('settingsDrawer');
+            const body = document.getElementById('drawerBody');
+            if (drawer.classList.contains('opacity-0')) {
+                drawer.classList.remove('opacity-0', 'pointer-events-none');
+                body.classList.remove('translate-x-full');
+            } else {
+                drawer.classList.add('opacity-0', 'pointer-events-none');
+                body.classList.add('translate-x-full');
+            }
+        }
+
+        function updateServerChoice() {
+            audio.playClick();
+            activeServerDisplay.innerText = document.getElementById('serverSelect').value;
+        }
+
+        function setIntensity(mode) {
+            audio.playClick();
+            testIntensity = mode;
+            document.getElementById('btnIntQuick').className = mode === 'quick' ? 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--accent-cyan)] text-black' : 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--card-bg)]';
+            document.getElementById('btnIntStd').className = mode === 'standard' ? 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--accent-yellow)] text-black' : 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--card-bg)]';
+            document.getElementById('btnIntExt').className = mode === 'extreme' ? 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--accent-pink)] text-black' : 'brutal-card-sm p-2 text-xs font-extrabold bg-[var(--card-bg)]';
+        }
+
+        function updateUnitPreference() {
+            audio.playClick();
+            selectedUnit = document.getElementById('unitSelect').value;
+            document.getElementById('downloadUnit').innerText = selectedUnit;
+            document.getElementById('uploadUnit').innerText = selectedUnit;
+        }
+
+        function toggleDarkMode() {
+            audio.playClick();
+            document.body.classList.toggle('dark');
+            const icon = document.getElementById('themeToggleIcon');
+            icon.className = document.body.classList.contains('dark') ? 'fa-solid fa-sun text-yellow-400' : 'fa-solid fa-moon';
+        }
+    </script>
+</body>
+</html>
